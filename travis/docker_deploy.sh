@@ -49,6 +49,7 @@ then
     DOCKER_TAGS+=($TRAVIS_TAG)
 fi
 
+# Process build
 docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
 docker build -t $DOCKER_REPOSITORY:$TRAVIS_COMMIT .
 for tag in "${DOCKER_RELEASE_TAGS[@]}"
