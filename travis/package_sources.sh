@@ -27,13 +27,13 @@ set -ex
 # Retrieve release informations
 export PROJECT_NAME=$(echo $TRAVIS_REPO_SLUG | sed 's#.*\/##')
 export PROJECT_RELEASE=$TRAVIS_TAG
-export FILENAME="$PROJECT_NAME-$PROJECT_RELEASE.tar.gz"
+export FILENAME="$PROJECT_NAME-$PROJECT_RELEASE-sources.tar.gz"
 
 # Temporary file
 export TEMPORARY_FILE=$(mktemp)
 
 # Package the whole repo in a tar.gz to prepare release
-tar czvf $TEMPORARY_FILE ./ --exclude='.[^/]*' --transform "s#^..#ci/#" --show-transformed-names
+tar czvf $TEMPORARY_FILE ./ --exclude='.[^/]*' --transform "s#^..#$PROJECT_NAME/#" --show-transformed-names
 
 # Move file to current dir
 mv $TEMPORARY_FILE ./$FILENAME
