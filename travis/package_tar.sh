@@ -36,4 +36,4 @@ export TEMPORARY_FILE=$(mktemp)
 tar czvf $TEMPORARY_FILE ./ --exclude='.[^/]*' --transform "s#^..#ci/#" --show-transformed-names
 
 # Move file to current dir
-mv $TEMPORARY_FILE $FILENAME
+mv $TEMPORARY_FILE ./$FILENAME
