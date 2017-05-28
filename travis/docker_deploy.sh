@@ -24,10 +24,19 @@
 
 set -ex
 
+set -o pipefail
+
+if [ ! -f "$TRAVIS_BUILD_DIR/Dockerfile" ]
+then
+  echo "Not a Docker project, skipping."
+  exit 0
+fi
+
 # Pull request are not supported as secrets are unavailable anyway
 if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ]
 then
-    exit 0
+  echo "Pull request detected, skipping."
+  exit 0
 fi
 
 # Assuming Github username = Docker username
@@ -38,15 +47,15 @@ export DOCKER_USERNAME=$(echo $DOCKER_REPOSITORY | sed 's#\/.*##')
 export DOCKER_TAGS=()
 if [ -n "$TRAVIS_BRANCH" ]
 then
-    DOCKER_TAGS+=($(echo $TRAVIS_BRANCH | sed 's#\/#-#g'))
-    if [ "$TRAVIS_BRANCH" == 'master' ]
-    then
-        DOCKER_TAGS+=('latest')
-    fi
+  DOCKER_TAGS+=($(echo $TRAVIS_BRANCH | sed 's#\/#-#g'))
+  if [ "$TRAVIS_BRANCH" == 'master' ]
+  then
+    DOCKER_TAGS+=('latest')
+  fi
 fi
 if [ -n "$TRAVIS_TAG" ]
 then
-    DOCKER_TAGS+=($TRAVIS_TAG)
+  DOCKER_TAGS+=($TRAVIS_TAG)
 fi
 
 # Process build
@@ -54,6 +63,6 @@ docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
 docker build -t $DOCKER_REPOSITORY:$TRAVIS_COMMIT .
 for tag in "${DOCKER_TAGS[@]}"
 do
-    docker tag $DOCKER_REPOSITORY:$TRAVIS_COMMIT $DOCKER_REPOSITORY:$tag
+  docker tag $DOCKER_REPOSITORY:$TRAVIS_COMMIT $DOCKER_REPOSITORY:$tag
 done
 docker push $DOCKER_REPOSITORY

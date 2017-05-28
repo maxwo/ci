@@ -24,8 +24,24 @@
 
 set -ex
 
+set -o pipefail
+
+export JACOCO_REPORT_LOCATION="target/site/jacoco/jacoco.xml"
+
+if [ ! -f "$TRAVIS_BUILD_DIR/$JACOCO_REPORT_LOCATION" ]
+then
+  echo "No JaCoCo report found, skipping."
+  exit 0
+fi
+
+if [ -z "$CODACY_PROJECT_TOKEN" ]
+then
+  echo "No Codacy token specified, use CODACY_PROJECT_TOKEN to provide it, skipping."
+  exit 0
+fi
+
 export CODACY_COVERAGE_REPORTER_VERSION=2.0.0
 
 wget https://oss.sonatype.org/service/local/repositories/releases/content/com/codacy/codacy-coverage-reporter/$CODACY_COVERAGE_REPORTER_VERSION/codacy-coverage-reporter-$CODACY_COVERAGE_REPORTER_VERSION-assembly.jar
 
-java -cp codacy-coverage-reporter-$CODACY_COVERAGE_REPORTER_VERSION-assembly.jar com.codacy.CodacyCoverageReporter -l Java -r target/site/jacoco/jacoco.xml
+java -cp codacy-coverage-reporter-$CODACY_COVERAGE_REPORTER_VERSION-assembly.jar com.codacy.CodacyCoverageReporter -l Java -r "$TRAVIS_BUILD_DIR/$JACOCO_REPORT_LOCATION"

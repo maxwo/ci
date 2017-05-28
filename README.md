@@ -8,8 +8,12 @@ Simply get the latest CI release thanks to an `after_success` clause in your `.t
 
 ```yaml
 after_success:
-  - wget https://github.com/maxwo/ci/releases/download/0.1.0/ci-0.1.0-sources.tar.gz -O - | tar -xz
+  - wget https://github.com/maxwo/ci/releases/download/1.0.0/ci-1.0.0-sources.tar.gz -O - | tar -xz -C /tmp
+  - /tmp/ci/run.sh
 ```
+
+The `run.sh` command is optional. it will execute the following scripts, if applicable, otherwise,
+you can use the scripts independantly.
 
 ## Deploy to Docker Hub
 
@@ -31,20 +35,20 @@ clause to your `.travis.yml`:
 
 ```yaml
 after_success:
-  - wget https://github.com/maxwo/ci/releases/download/0.1.0/ci-0.1.0-sources.tar.gz -O - | tar -xz
-  - ci/travis/docker_deploy.sh
+  - wget https://github.com/maxwo/ci/releases/download/1.0.0/ci-1.0.0-sources.tar.gz -O - | tar -xz -C /tmp
+  - /tmp/ci/travis/docker_deploy.sh
 ```
 
 To restraint Hub pushed to only tags or git pushes, consider using the `script` provider:
 
 ```yaml
 after_success:
-  - wget https://github.com/maxwo/ci/releases/download/0.1.0/ci-0.1.0-sources.tar.gz -O - | tar -xz
+  - wget https://github.com/maxwo/ci/releases/download/1.0.0/ci-1.0.0-sources.tar.gz -O - | tar -xz -C /tmp
 
 deploy:
   - provider: script
     skip_cleanup: true
-    script: ci/travis/docker_deploy.sh
+    script: /tmp/ci/travis/docker_deploy.sh
     on:
       tags: true
 ```
@@ -86,8 +90,8 @@ Then, as usual, in your `.travis.yml`, add an `after_success` clause:
 
 ```yaml
 after_success:
-  - wget https://github.com/maxwo/ci/releases/download/0.1.0/ci-0.1.0-sources.tar.gz -O - | tar -xz
-  - ci/travis/codacy_java_coverage.sh
+  - wget https://github.com/maxwo/ci/releases/download/1.0.0/ci-1.0.0-sources.tar.gz -O - | tar -xz -C /tmp
+  - /tmp/ci/travis/codacy_java_coverage.sh
 ```
 
 ## Coveralls Java test coverage
@@ -100,22 +104,23 @@ To use this script, just drop the following lines in the `.travis.yml`:
 
 ```yaml
 after_success:
-  - wget https://github.com/maxwo/ci/releases/download/0.1.0/ci-0.1.0-sources.tar.gz -O - | tar -xz
-  - ci/travis/coveralls_java_coverage.sh
+  - wget https://github.com/maxwo/ci/releases/download/1.0.0/ci-1.0.0-sources.tar.gz -O - | tar -xz -C /tmp
+  - /tmp/ci/travis/coveralls_java_coverage.sh
 ```
 
 ## Sources archive generation
 
 Generate a tarball containing the sources of the project, useful for releases.
 
-This script ignores hidden files, and the tarball name is equal to the repository name.
+This script ignores VCS and .gitignore files, and the tarball name is equal to the repository name.
 
-To use it, just drop these lines in the `.travis.yml` file, and the sources archives will be deployed as part of 
+To use it, just drop these lines in the `.travis.yml` file, and the sources archives will be deployed as part of
 your release:
 
 ```yaml
 after_success:
-  - ci/travis/package_sources.sh
+  - wget https://github.com/maxwo/ci/releases/download/1.0.0/ci-1.0.0-sources.tar.gz -O - | tar -xz -C /tmp
+  - /tmp/ci/travis/package_sources.sh
 
 deploy:
   provider: releases
@@ -125,4 +130,17 @@ deploy:
   file: myproject-$TRAVIS_TAG-sources.tar.gz
   on:
     tags: true
+```
+
+## Sonatype deploy
+
+Upload current Maven project to Sonatype.
+
+This scripts assumes a SONATYPE_PASSWORD is available in environment variables, containing
+your password to the Sonatype repository.
+
+```yaml
+after_success:
+  - wget https://github.com/maxwo/ci/releases/download/1.0.0/ci-1.0.0-sources.tar.gz -O - | tar -xz -C /tmp
+  - /tmp/ci/travis/sonatype_java_deploy.sh
 ```

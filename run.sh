@@ -26,24 +26,8 @@ set -ex
 
 set -o pipefail
 
-# Retrieve release informations
-export PROJECT_NAME=$(echo $TRAVIS_REPO_SLUG | sed 's#.*\/##')
-export PROJECT_RELEASE=$TRAVIS_TAG
-export FILENAME="$PROJECT_NAME-$PROJECT_RELEASE-sources.tar.gz"
-
-# Temporary file
-export TEMPORARY_FILE=$(mktemp)
-
-# Exclude useless files from sources
-export EXCLUSIONS="--exclude-vcs"
-
-if [ -f "$TRAVIS_BUILD_DIR/.gitignore" ]
-then
-  EXCLUSIONS="$EXCLUSIONS --exclude-from=$TRAVIS_BUILD_DIR/.gitignore"
-fi
-
-# Package the whole repo in a tar.gz to prepare release
-tar czvf $TEMPORARY_FILE ./ $EXCLUSIONS --transform "s#^..#$PROJECT_NAME/#" --show-transformed-names
-
-# Move file to current dir
-mv $TEMPORARY_FILE ./$FILENAME
+travis/codacy_java_coverage.sh
+travis/coveralls_java_coverage.sh
+travis/docker_deploy.sh
+travis/sonatype_java_deploy.sh
+travis/package_sources.sh

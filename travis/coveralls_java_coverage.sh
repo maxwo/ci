@@ -24,4 +24,18 @@
 
 set -ex
 
+set -o pipefail
+
+if [ ! -f "$TRAVIS_BUILD_DIR/pom.xml" ]
+then
+  echo "Not a Maven project, skipping."
+  exit 0
+fi
+
+if [ -z "$COVERALLS_PROJECT_TOKEN" ]
+then
+  echo "No Coveralls token specified, use COVERALLS_PROJECT_TOKEN to provide it, skipping."
+  exit 0
+fi
+
 mvn -Dcoveralls.project.token=$COVERALLS_PROJECT_TOKEN coveralls:report

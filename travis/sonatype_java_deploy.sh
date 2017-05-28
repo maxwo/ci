@@ -26,24 +26,22 @@ set -ex
 
 set -o pipefail
 
-# Retrieve release informations
-export PROJECT_NAME=$(echo $TRAVIS_REPO_SLUG | sed 's#.*\/##')
-export PROJECT_RELEASE=$TRAVIS_TAG
-export FILENAME="$PROJECT_NAME-$PROJECT_RELEASE-sources.tar.gz"
-
-# Temporary file
-export TEMPORARY_FILE=$(mktemp)
-
-# Exclude useless files from sources
-export EXCLUSIONS="--exclude-vcs"
-
-if [ -f "$TRAVIS_BUILD_DIR/.gitignore" ]
+if [ ! -f "$TRAVIS_BUILD_DIR/pom.xml" ]
 then
-  EXCLUSIONS="$EXCLUSIONS --exclude-from=$TRAVIS_BUILD_DIR/.gitignore"
+  echo "Not a Maven project, skipping."
+  exit 0
 fi
 
-# Package the whole repo in a tar.gz to prepare release
-tar czvf $TEMPORARY_FILE ./ $EXCLUSIONS --transform "s#^..#$PROJECT_NAME/#" --show-transformed-names
+if [ -z "$SONATYPE_PASSWORD" ]
+then
+  echo "No Sonatype password specified, skipping."
+  exit 0
+fi
 
-# Move file to current dir
-mv $TEMPORARY_FILE ./$FILENAME
+if [ -z "$SONATYPE_USERNAME" ]
+then
+  echo "No Sonatype username specified, using maximewojtczak as default."
+  export SONATYPE_USERNAME="maximewojtczak"
+fi
+
+mvn deploy --settings /tmp/ci/sonatype/settings.xml
