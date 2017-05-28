@@ -26,8 +26,8 @@ set -ex
 
 set -o pipefail
 
-travis/codacy_java_coverage.sh
-travis/coveralls_java_coverage.sh
-travis/docker_deploy.sh
-travis/sonatype_java_deploy.sh
-travis/package_sources.sh
+/tmp/ci/travis/codacy_java_coverage.sh
+/tmp/ci/travis/coveralls_java_coverage.sh
+/tmp/ci/travis/docker_deploy.sh
+/tmp/ci/travis/sonatype_java_deploy.sh
+/tmp/ci/travis/package_sources.sh
